@@ -63,9 +63,9 @@
     "scripts": {
         "clean": "rm -rf build",
         "start": "react-app-rewired start",
-        "staging:build": "REACT_APP_BASE_URL=http://lb.staging.falconride.io react-app-rewired build",
+        "production:build": "REACT_APP_BASE_URL=http://b-falcon-staging-lb-1340126293.me-south-1.elb.amazonaws.com react-app-rewired build",
         "test": "react-app-rewired --env=jsdom",
-        "staging-deploy": "aws s3 sync build/ s3://staging.falconride.io --acl public-read"
+        "production-deploy": "aws s3 sync build/ s3://test-b-falcon --acl public-read"
     },
     "devDependencies": {},
     "browserslist": [

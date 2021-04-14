@@ -21,7 +21,9 @@ module.exports = {
             allowOrigins: [
                 'http://localhost:3000',
                 'http://b.falconride.io',
-                'https://b.falconride.io'
+                'https://b.falconride.io',
+                'http://b.falconride.io.s3-website.me-south-1.amazonaws.com',
+                'http://lb.b.falconride.io'
             ]
         }
     },

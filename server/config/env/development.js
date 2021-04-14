@@ -18,7 +18,7 @@ module.exports = {
     security: {
         cors: {
             allRoutes: true,
-            allowOrigins: ['http://localhost:3000']
+            allowOrigins: ['http://localhost:3000', 'http://b.falconride.io', 'https://b.falconride.io']
         }
     },
     session: {

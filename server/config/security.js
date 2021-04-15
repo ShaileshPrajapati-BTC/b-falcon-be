@@ -32,7 +32,7 @@ module.exports.security = {
     allRoutes: true,
     allowCredentials: false,
     allowRequestMethods: 'GET,POST,PUT,DELETE,OPTIONS,HEAD',
-    allowRequestHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Language, Accept-Language, Allow',
+    allowRequestHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Language, Accept-Language, Allow, access-token',
     allowOrigins: [
         'http://localhost:3000',
         'http://b-falcon-staging-lb-1340126293.me-south-1.elb.amazonaws.com',

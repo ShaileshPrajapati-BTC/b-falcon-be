@@ -34,6 +34,7 @@ module.exports.http = {
         order: [
             'cookieParser',
             'session',
+            'logRequest',
             'passportInit',
             'passportSession',
             'extendTimeout',
@@ -50,6 +51,10 @@ module.exports.http = {
             req.setTimeout(300 * 1000); // Increase the request timeout to 5 minutes
 
             return next();
+        },
+        logRequest: function (req, res, next) {
+            console.log(`[${req.method}] ${req.url}`)
+            next();
         },
         /***************************************************************************
          *                                                                          *

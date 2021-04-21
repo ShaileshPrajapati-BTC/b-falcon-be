@@ -3,7 +3,8 @@ const moment = require("moment");
 const request = require('request');
 const ProjectSetupConfigService = require('../../projectSetupConfig');
 const UtilService = require('../../util');
-const UserService  =  require("../../user");
+const UserService  =  require('../../../services/user');
+const payment = require('../../../services/payment')
 
 module.exports = {
     //Get noqoody payment token.
@@ -48,7 +49,7 @@ module.exports = {
                 datetime: moment().toISOString()
             }];
             data.statusTrack = statusTrack;
-            // return response; 
+            // return response;
         } catch (e) {
             console.log('Payment error ******************', e);
             data.transactionSuccess = false;

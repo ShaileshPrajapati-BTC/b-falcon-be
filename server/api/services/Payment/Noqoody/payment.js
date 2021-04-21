@@ -3,8 +3,8 @@ const moment = require("moment");
 const request = require('request');
 const ProjectSetupConfigService = require('../../projectSetupConfig');
 const UtilService = require('../../util');
-const UserService  =  require('../../../services/user');
-const payment = require('../../../services/payment')
+const UserService = require(`${sails.config.appPath}/api/services/user`);
+const payment = require(`${sails.config.appPath}/api/services/payment`);
 
 module.exports = {
     //Get noqoody payment token.

@@ -23,7 +23,7 @@ module.exports = {
             sails.config.NOQOODY_TRANSACTION_VERIFYING = sails.config.NOQOODY_TRANSACTION_VERIFYING.filter(function (e) { return e !== noqoodyReferenceId });
             console.log('isAddedToWallet------------------', isAddedToWallet);
             if (isAddedToWallet) {
-                return res.ok(isAddedToWallet, sails.config.message.WALLET_CREDIT_REQUEST_CHARGE_SUCCESS);
+                return res.ok(isAddedToWallet);
             }
             if (error) {
                 throw error;

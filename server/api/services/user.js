@@ -1197,11 +1197,14 @@ module.exports = {
             "type": 3
         }
         ]
+        console.log('Sync userId:', userId)
         try {
             lastSyncDate = moment(lastSyncDate).toISOString();
             let user = await User.findOne({ id: userId })
                 .populate("franchiseeId")
                 .populate("dealerId");
+                //.populate('isActiveBookingPass');
+            console.log('currentBookingPassIds:', user.currentBookingPassIds);
             if (user.currentBookingPassIds) {
                 let currentPlans = await PlanInvoice.find({ id: user.currentBookingPassIds });
                 for (let i = 0; i < currentPlans.length; i++) {
@@ -1214,7 +1217,11 @@ module.exports = {
                     }
                 }
                 user.currentBookingPassIds = currentPlans;
+                user.isActiveBookingPlan = true;
+            } else {
+                user.isActiveBookingPlan = false;
             }
+
             let masters = await Master.find({
                 updatedAt: { ">=": lastSyncDate },
             });

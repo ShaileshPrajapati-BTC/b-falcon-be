@@ -188,7 +188,7 @@ module.exports = {
                     id: planInvoice.userId
                 },
                 {
-                    currentBookingPassIds: currentBookingPassIds,
+                    currentBookingPassIds: currentBookingPassIds
                 }
             ).fetch();
             if (!updatedUser.length < 0) {

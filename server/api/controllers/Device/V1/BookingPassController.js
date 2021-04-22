@@ -108,7 +108,7 @@ module.exports = {
 
             let isTimeClose = await operationalHours.checkIsOperationalHoursCLose();
             if(isTimeClose.isTimeClose){
-                throw sails.config.message.BOOKING_PASS_OPERATIONAL_HOURS_CLOSE;   
+                throw sails.config.message.BOOKING_PASS_OPERATIONAL_HOURS_CLOSE;
             }
 
             const plan = await BookingPass.findOne({

@@ -34,8 +34,8 @@ module.exports.http = {
         order: [
             'cookieParser',
             'session',
-            'logRequest',
             'passportInit',
+            'logRequests',
             'passportSession',
             'extendTimeout',
             'bodyParser',
@@ -52,8 +52,9 @@ module.exports.http = {
 
             return next();
         },
-        logRequest: function (req, res, next) {
-            console.log(`[${req.method}] ${req.url}`)
+        logRequests: function (req, res, next) {
+            console.log(`\n[${req.method}] ${req.url} `)
+
             next();
         },
         /***************************************************************************

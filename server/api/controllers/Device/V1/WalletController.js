@@ -5,6 +5,23 @@ const UserService = require(`${sails.config.appPath}/api/services/user`);
 const NOQOODYPaymentService = require(`${sails.config.appPath}/api/services/Payment/Noqoody/payment`);
 
 module.exports = {
+    addBalanceForPass: async (planInvoice, loggedInUser) => {
+        let chargeObj = await PaymentService.addBalanceInUserWallet(
+            loggedInUser.id,
+            planInvoice.price
+        );
+
+        const latestUserObj = await UserService.getLatestUserObj(loggedInUser.id);
+        let response = {
+            paymentData: chargeObj.data,
+            walletAmount: latestUserObj.walletAmount,
+            isGuestUser: latestUserObj.isGuestUser
+        };
+
+        const resMsg = JSON.parse(JSON.stringify(sails.config.message.WALLET_CREDIT_REQUEST_CHARGE_SUCCESS));
+
+        return {response, resMsg};
+    },
     addBalance: async (req, res) => {
         try {
             const fields = [

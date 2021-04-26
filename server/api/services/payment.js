@@ -129,7 +129,7 @@ module.exports = {
             }
             // if (DEFAULT_PAYMENT_METHOD === sails.config.PAYMENT_GATEWAYS.STRIPE) {
             //     await StripeService.removedCardFromCustomer(user.stripeCustomerId, params.cardId);
-            // } 
+            // }
             return true;
         } catch (e) {
             throw new Error(e);
@@ -160,7 +160,11 @@ module.exports = {
         }
     },
 
-    async addBalanceInUserWallet(userId, amount,paymentDetail = false) {
+    async addBalanceInUserWallet(userId, amount,paymentDetail = false, planInvoiceId) {
+        console.log(`[addBalanceInUserWallet] userId: ${userId}`)
+        console.log(`[addBalanceInUserWallet] amount: ${amount}`)
+        console.log(`[addBalanceInUserWallet] planInvoiceId: ${planInvoiceId}`)
+
         if (!amount || !userId) {
             let response = { flag: false, data: 'Transaction failed.' };
 
@@ -172,7 +176,8 @@ module.exports = {
             userId: userId,
             totalFare: amount,
             walletTransactionType: sails.config.STRIPE.TRANSACTION_TYPE.CREDIT,
-            isWalletTransaction: true
+            isWalletTransaction: true,
+            planInvoiceId
         };
         console.log('transactionDetail -> ', transactionDetail);
 
@@ -589,9 +594,9 @@ module.exports = {
                 transactionObj.updatedBy = reqUserId;
                 data = await TransactionLog.create(transactionObj).fetch();
             } else {
-         
+
                 throw sails.config.message.PARKING_FINE_GREATER_THAN_0;
-                
+
             }
             return data;
         } catch (e) {

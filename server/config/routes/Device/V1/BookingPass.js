@@ -29,4 +29,22 @@ module.exports.routes = {
             }
         }
     },
+    "POST /api/v1/booking-pass/purchase": {
+        controller: "Device/V1/BookingPassController",
+        action: "purchasePassWithPayment",
+        swagger: {
+            summary: "Buy the pass with payment",
+            description: "",
+            body: {
+                planId: {
+                    type: "string",
+                    required: true
+                },
+                vehicleType: {
+                    type: "number",
+                    required: true
+                }
+            }
+        }
+    },
 };

@@ -32,7 +32,8 @@ module.exports = {
             vehicleType: ride.vehicleType,
             rideNumber: ride.rideNumber,
             isRideDepositTransaction: ride.deductMinFare,
-            rideType: ride.rideType
+            rideType: ride.rideType,
+            planInvoiceId: ride.planInvoiceId
         };
         try {
 

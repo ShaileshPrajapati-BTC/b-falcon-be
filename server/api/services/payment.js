@@ -129,7 +129,7 @@ module.exports = {
             }
             // if (DEFAULT_PAYMENT_METHOD === sails.config.PAYMENT_GATEWAYS.STRIPE) {
             //     await StripeService.removedCardFromCustomer(user.stripeCustomerId, params.cardId);
-            // }
+            // } 
             return true;
         } catch (e) {
             throw new Error(e);
@@ -187,7 +187,6 @@ module.exports = {
             console.log('credit amount', amount);
             if (amount > 0) {
                 //Check payment method and proceed payment
-
                 switch (DEFAULT_PAYMENT_METHOD) {
                     case sails.config.PAYMENT_GATEWAYS.STRIPE:
                         data = await StripeService.chargeCustomerForRide(transactionDetail);
@@ -590,9 +589,9 @@ module.exports = {
                 transactionObj.updatedBy = reqUserId;
                 data = await TransactionLog.create(transactionObj).fetch();
             } else {
-
+         
                 throw sails.config.message.PARKING_FINE_GREATER_THAN_0;
-
+                
             }
             return data;
         } catch (e) {
@@ -607,11 +606,11 @@ module.exports = {
             let res = { flag: false };
             let data;
 
-            // const walletConfig = await WalletService.getWalletConfig();
-            // const { isWalletEnable } = walletConfig;
-            // if (!isWalletEnable) {
-            //     throw sails.config.message.WALLET_NOT_ENABLED;
-            // }
+            const walletConfig = await WalletService.getWalletConfig();
+            const { isWalletEnable } = walletConfig;
+            if (!isWalletEnable) {
+                throw sails.config.message.WALLET_NOT_ENABLED;
+            }
             data = await WalletService.chargeCustomerForPlan(planInvoiceId, planPrice, userId);
             console.log("chargeCustomerForPlanUsingWallet -> data", data)
             const walletTransactionType =

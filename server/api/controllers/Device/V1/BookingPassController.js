@@ -4,7 +4,7 @@ const RideBookingService = require(`${sails.config.appPath}/api/services/rideBoo
 const BookingPassService = require(`${sails.config.appPath}/api/services/bookingPass`);
 const PaymentService = require(`${sails.config.appPath}/api/services/payment`);
 const UtilService = require(`${sails.config.appPath}/api/services/util`);
-const WalletController = require(`${sails.config.appPath}/api/controllers/Device/V1/WalletController`);
+
 module.exports = {
     async list(req, res) {
         try {
@@ -93,44 +93,6 @@ module.exports = {
         }
     },
 
-    async finalisePurchasePass (transactionId) {
-        try {
-            console.log(`Finalising purchase of pass: ${transactionId}`)
-            let transaction = await TransactionLog.findOne({
-                noqoodyReferenceId: transactionId
-            });
-
-            const planInvoice = await PlanInvoice.findOne({
-                id: transaction.planInvoiceId
-            })
-
-            console.log(`planInvoice: ${planInvoice.id}`)
-            console.log(`plan: ${planInvoice.planId}`)
-            console.log(`price: ${planInvoice.price}`)
-
-            let chargeObj = await PaymentService.chargeCustomerForPlanUsingWallet(
-                planInvoice.id,
-                planInvoice.price,
-                planInvoice.userId
-            );
-
-            if (chargeObj.flag) {
-                const user = await User.findOne({ id: planInvoice.userId });
-                let currentBookingPass = user.currentBookingPassIds ? user.currentBookingPassIds : []
-                currentBookingPass.push(planInvoice.id)
-                await User.update(
-                    { id: planInvoice.userId },
-                    { currentBookingPassIds: currentBookingPass }
-                );
-                console.log(`Charge for plan succeeded for transaction: ${transactionId}`)
-            } else {
-                console.log(`Charge for plan failed for transaction: ${transactionId}`)
-            }
-
-        } catch (e) {
-            console.log(err);
-        }
-    },
     async purchasePass(req, res) {
         try {
             const fields = ["planId"];
@@ -168,9 +130,9 @@ module.exports = {
             await BookingPassService.checkUsedPassForVehicleType(userId, vehicleType)
 
             const planPriceDetails = await BookingPassService.getPlanPriceDetails(plan, vehicleType)
-            // if (!("walletAmount" in loggedInUser) || loggedInUser.walletAmount < planPriceDetails.price) {
-            //     throw sails.config.message.NOT_ENOUGH_AMOUNT_IN_WALLET;
-            // }
+            if (!("walletAmount" in loggedInUser) || loggedInUser.walletAmount < planPriceDetails.price) {
+                throw sails.config.message.NOT_ENOUGH_AMOUNT_IN_WALLET;
+            }
 
             let planTotalTimeLimit = BookingPassService.countTimeLimitInSeconds(
                 plan.limitValue,
@@ -208,55 +170,52 @@ module.exports = {
                 throw sails.config.message.BUY_PLAN_FAILED;
             }
 
-            const {response, resMsg} = await WalletController.addBalanceForPass(planInvoice, loggedInUser)
-            return res.ok(response, resMsg);
+            let chargeObj = await PaymentService.chargeCustomerForPlanUsingWallet(
+                planInvoice.id,
+                planPriceDetails.price,
+                userId
+            );
 
-            // let chargeObj = await PaymentService.chargeCustomerForPlanUsingWallet(
-            //     planInvoice.id,
-            //     planPriceDetails.price,
-            //     userId
-            // );
-            //
-            // if (chargeObj.flag) {
-            //     const user = await User.findOne({ id: userId });
-            //     let currentBookingPass = user.currentBookingPassIds ? user.currentBookingPassIds : []
-            //     currentBookingPass.push(planInvoice.id)
-            //     await User.update(
-            //         { id: userId },
-            //         { currentBookingPassIds: currentBookingPass }
-            //     );
-            //
-            //     const latestUserObj = await UserService.getLatestUserWithCurrentPass(loggedInUser.id);
-            //
-            //     return res.ok(
-            //         {
-            //             paymentData: chargeObj.data,
-            //             loggedInUser: latestUserObj,
-            //         },
-            //         sails.config.message.BUY_PLAN_REQUEST_CHARGE_SUCCESS
-            //     );
-            // }
-            // let errMsgObj = JSON.parse(
-            //     JSON.stringify(
-            //         sails.config.message.BUY_PLAN_REQUEST_CHARGE_FAILED
-            //     )
-            // );
-            // if (
-            //     chargeObj &&
-            //     chargeObj.data &&
-            //     chargeObj.data.raw &&
-            //     chargeObj.data.raw.message
-            // ) {
-            //     errMsgObj.message += ` due to ${chargeObj.data.raw.message}`;
-            // } else if (chargeObj && chargeObj.data && chargeObj.data.message) {
-            //     errMsgObj.message += ` due to ${chargeObj.data.message}`;
-            // }
-            // latestUserObj = await UserService.getLatestUserWithCurrentPass(loggedInUser.id);
-            //
-            // return res.ok(
-            //     { paymentData: chargeObj.data, loggedInUser: latestUserObj },
-            //     errMsgObj
-            // );
+            if (chargeObj.flag) {
+                const user = await User.findOne({ id: userId });
+                let currentBookingPass = user.currentBookingPassIds ? user.currentBookingPassIds : []
+                currentBookingPass.push(planInvoice.id)
+                await User.update(
+                    { id: userId },
+                    { currentBookingPassIds: currentBookingPass }
+                );
+
+                const latestUserObj = await UserService.getLatestUserWithCurrentPass(loggedInUser.id);
+
+                return res.ok(
+                    {
+                        paymentData: chargeObj.data,
+                        loggedInUser: latestUserObj,
+                    },
+                    sails.config.message.BUY_PLAN_REQUEST_CHARGE_SUCCESS
+                );
+            }
+            let errMsgObj = JSON.parse(
+                JSON.stringify(
+                    sails.config.message.BUY_PLAN_REQUEST_CHARGE_FAILED
+                )
+            );
+            if (
+                chargeObj &&
+                chargeObj.data &&
+                chargeObj.data.raw &&
+                chargeObj.data.raw.message
+            ) {
+                errMsgObj.message += ` due to ${chargeObj.data.raw.message}`;
+            } else if (chargeObj && chargeObj.data && chargeObj.data.message) {
+                errMsgObj.message += ` due to ${chargeObj.data.message}`;
+            }
+            latestUserObj = await UserService.getLatestUserWithCurrentPass(loggedInUser.id);
+
+            return res.ok(
+                { paymentData: chargeObj.data, loggedInUser: latestUserObj },
+                errMsgObj
+            );
         } catch (error) {
             console.log(error);
             res.serverError({}, error);

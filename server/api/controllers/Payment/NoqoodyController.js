@@ -1,5 +1,5 @@
-const PaymentServiceCtrl = require(`${sails.config.appPath}/api/services/Payment/Noqoody/payment`);
-const BookingPassController = require(`${sails.config.appPath}/api/controllers/Device/V1/BookingPassController`);
+const PaymentService = require(`${sails.config.appPath}/api/services/Payment/Noqoody/payment`);
+
 module.exports = {
     serverGetCallbackURL: async (req, res) => {
         let params = req.allParams();
@@ -15,16 +15,14 @@ module.exports = {
             let isAddedToWallet = false;
             let error;
             try {
-                isAddedToWallet = await PaymentServiceCtrl.validatePayment(noqoodyReferenceId);
+                isAddedToWallet = await PaymentService.validatePayment(noqoodyReferenceId);
             } catch (err) {
                 console.log(err);
                 error = err;
             }
-
             sails.config.NOQOODY_TRANSACTION_VERIFYING = sails.config.NOQOODY_TRANSACTION_VERIFYING.filter(function (e) { return e !== noqoodyReferenceId });
             console.log('isAddedToWallet------------------', isAddedToWallet);
             if (isAddedToWallet) {
-                await BookingPassController.finalisePurchasePass(noqoodyReferenceId);
                 return res.send("");
             }
             if (error) {

@@ -1204,6 +1204,7 @@ module.exports = {
                 .populate("franchiseeId")
                 .populate("dealerId");
                 //.populate('isActiveBookingPass');
+            user.isActiveBookingPlan = false;
             console.log('currentBookingPassIds:', user.currentBookingPassIds);
             if (user.currentBookingPassIds) {
                 let currentPlans = await PlanInvoice.find({ id: user.currentBookingPassIds });
@@ -1217,9 +1218,7 @@ module.exports = {
                     }
                 }
                 user.currentBookingPassIds = currentPlans;
-                user.isActiveBookingPlan = true;
-            } else {
-                user.isActiveBookingPlan = false;
+                user.isActiveBookingPlan = user.currentBookingPassIds.length ? true : false;
             }
 
             let masters = await Master.find({

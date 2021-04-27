@@ -22,7 +22,7 @@ module.exports = {
             isGuestUser: latestUserObj.isGuestUser
         };
 
-        const resMsg = JSON.parse(JSON.stringify(sails.config.message.WALLET_CREDIT_REQUEST_CHARGE_SUCCESS));
+        const resMsg = JSON.parse(JSON.stringify(sails.config.message.BUY_PLAN_REQUEST_CHARGE_SUCCESS));
 
         return {response, resMsg};
     },

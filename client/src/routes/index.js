@@ -345,7 +345,7 @@ const App = ({ match }) => {
                     })}
                 />
                 <CustomRoute
-                    pageId={PAGE_PERMISSION.NEST}
+                    pageId={PAGE_PERMISSION.ZONES}
                     path={`${match.url}e-scooter/${NEST_ROUTE}/:id?`}
                     component={asyncComponent(() => {
                         return import("./Nest");

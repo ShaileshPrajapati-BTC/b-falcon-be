@@ -25,7 +25,7 @@ class ZoneList extends Component {
         const isDealer = authUser.type === USER_TYPES.DEALER
         let menuPermission = authUser.accessPermission;
         let indexes = _.findIndex(menuPermission, {
-            module: Number(PAGE_PERMISSION.NEST)
+            module: Number(PAGE_PERMISSION.ZONES)
         });
         let hasNestListPermission =
             menuPermission[indexes] &&

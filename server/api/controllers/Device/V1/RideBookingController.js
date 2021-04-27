@@ -256,6 +256,9 @@ module.exports = {
 
             console.log("currentBookPlanInvoice-----------", currentBookPlanInvoice)
 
+            if(!currentBookPlanInvoice || !(currentBookPlanInvoice && currentBookPlanInvoice.length)){
+                throw sails.config.message.ACTIVE_PLAN_ERROR
+            }
             let nextPlanExist = loggedInUser.nextBookingPlanInvoiceId !== null;
             let isSubscriptionRideFlow = false;
             // let isSubscriptionRideFlow = await RideBookingService.checkIsSubscriptionRideFlow(

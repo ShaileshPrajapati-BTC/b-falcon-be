@@ -256,8 +256,8 @@ module.exports = {
 
             try {
                 // update wallet expiry date
-                await UserService.updateWalletExpriedTime(sails.config.WALLET_EXPIRED_TIME,user.id);
-                await payment.addBonusForWalletTransaction(transaction);
+                // await UserService.updateWalletExpriedTime(sails.config.WALLET_EXPIRED_TIME,user.id);
+                // await payment.addBonusForWalletTransaction(transaction);
             } catch (e) {
                 console.error(e)
             }

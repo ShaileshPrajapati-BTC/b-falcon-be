@@ -405,6 +405,11 @@ module.exports = {
             message: 'Scooter not found.',
             status: 401
         },
+        ACTIVE_PLAN_ERROR: {
+            code: 'UNPROCESSABLE_ENTITY',
+            message: 'Active booking pass is required',
+            status: 401
+        },
         SCOOTER_NOT_AVAILABLE: {
             code: 'UNPROCESSABLE_ENTITY',
             message: 'Scooter is not available.',

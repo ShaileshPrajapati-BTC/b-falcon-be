@@ -611,11 +611,11 @@ module.exports = {
             let res = { flag: false };
             let data;
 
-            const walletConfig = await WalletService.getWalletConfig();
-            const { isWalletEnable } = walletConfig;
-            if (!isWalletEnable) {
-                throw sails.config.message.WALLET_NOT_ENABLED;
-            }
+            //const walletConfig = await WalletService.getWalletConfig();
+            // const { isWalletEnable } = walletConfig;
+            // if (!isWalletEnable) {
+            //     throw sails.config.message.WALLET_NOT_ENABLED;
+            // }
             data = await WalletService.chargeCustomerForPlan(planInvoiceId, planPrice, userId);
             console.log("chargeCustomerForPlanUsingWallet -> data", data)
             const walletTransactionType =

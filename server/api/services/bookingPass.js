@@ -39,11 +39,11 @@ module.exports = {
 
             console.log(`planInvoice: ${planInvoice.id}`)
             console.log(`plan: ${planInvoice.planId}`)
-            console.log(`price: ${planInvoice.price}`)
+            console.log(`price: ${planInvoice.planPrice}`)
 
             let chargeObj = await PaymentService.chargeCustomerForPlanUsingWallet(
                 planInvoice.id,
-                planInvoice.price,
+                planInvoice.planPrice,
                 planInvoice.userId
             );
 
@@ -60,7 +60,7 @@ module.exports = {
                 console.log(`Charge for plan failed for transaction: ${transactionId}`)
             }
 
-        } catch (e) {
+        } catch (err) {
             console.log(err);
         }
     },

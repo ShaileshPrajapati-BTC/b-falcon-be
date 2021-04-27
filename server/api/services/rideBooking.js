@@ -1640,9 +1640,12 @@ module.exports = {
     },
 
     async checkVehicleAvailability(vehicle, isReserved = false) {
+        console.log("isReserved", isReserved)
+        console.log("vehicle.imei", vehicle.imei)
         if (!vehicle.imei) {
             throw sails.config.message.PLEASE_CONFIGURE_IMEI;
         }
+        console.log("vehicle.isAvailable", vehicle.isAvailable)
         if (!vehicle.isAvailable && !isReserved) {
             throw sails.config.message.SCOOTER_NOT_AVAILABLE;
         }
@@ -1653,15 +1656,19 @@ module.exports = {
         if (shouldCheckBatteryLevel && vehicle.batteryLevel < minBatteryLevel) {
             throw sails.config.message.SCOOTER_LOW_BATTERY;
         }
+        console.log("vehicle.isActive", vehicle.isActive)
         if (!vehicle.isActive) {
             throw sails.config.message.SCOOTER_NOT_ACTIVE;
         }
+        console.log("vehicle.connectionStatus", vehicle.connectionStatus)
         if (!vehicle.connectionStatus) {
             throw sails.config.message.SCOOTER_NOT_CONNECTED;
         }
+        console.log("vehicle.currentLocation", vehicle.currentLocation)
         if (!vehicle.currentLocation) {
             throw sails.config.message.SCOOTER_NOT_AVAILABLE_FOR_RIDE;
         }
+        console.log("vehicle.isTaskCreated", vehicle.isTaskCreated)
         if (vehicle.isTaskCreated) {
             throw sails.config.message.VEHICLE_NOT_AVAILABLE;
         }
@@ -2806,7 +2813,7 @@ module.exports = {
         console.log('currentPlanInvoice.remainingTimeLimit :>> ', currentPlanInvoice.remainingTimeLimit);
         console.log('fareSummary.travelTime :>> ', fareSummary.travelTime);
         if (rideDiscount) {
-            //check ride is in working hours or not 
+            //check ride is in working hours or not
             const endDateTime = ride.endDateTime || UtilService.getTimeFromNow();
             const todayEndTime = UtilService.addExpireTime(UtilService.getTimeFromNow(), sails.config.END_WORKING_TIME);
 
@@ -3711,13 +3718,13 @@ module.exports = {
         /**
          * imei - It's an imei number of vehicle.
          * data Object will be looked like
-         * 
-         *  {    
+         *
+         *  {
          *      type:1,
          *      message:'Notification Message',
-         *      sendInterval:5    
+         *      sendInterval:5
          *  }
-         * 
+         *
          *  where sendInterval's value is provided in minutes.
          */
         if (!imei || !data) {

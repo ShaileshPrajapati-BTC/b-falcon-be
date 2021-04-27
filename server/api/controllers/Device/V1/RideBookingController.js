@@ -252,23 +252,18 @@ module.exports = {
             const bookPlanFeatureActive = sails.config.RIDE_SUBSCRIPTION_FEATURE_ACTIVE;
             const bookingPassFeature = sails.config.IS_BOOKING_PASS_FEATURE_ACTIVE;
 
-            let currentBookPlanInvoice;
-            if (bookingPassFeature) {
-                currentBookPlanInvoice = await BookingPassService.getUserCurrentPass(loggedInUser.id, vehicle)
-            } else {
-                currentBookPlanInvoice = await BookPlanService.getUserPlanInvoice(
-                    loggedInUser.currentBookingPlanInvoiceId
-                );
-            }
+            let currentBookPlanInvoice = await BookingPassService.getUserCurrentPass(loggedInUser.id, vehicle)
+
             console.log("currentBookPlanInvoice-----------", currentBookPlanInvoice)
 
             let nextPlanExist = loggedInUser.nextBookingPlanInvoiceId !== null;
-            let isSubscriptionRideFlow = await RideBookingService.checkIsSubscriptionRideFlow(
-                bookPlanFeatureActive,
-                currentBookPlanInvoice,
-                sails.config.BOOK_PLAN_MIN_TIME_LIMIT_TO_CHECK,
-                nextPlanExist
-            );
+            let isSubscriptionRideFlow = false;
+            // let isSubscriptionRideFlow = await RideBookingService.checkIsSubscriptionRideFlow(
+            //     bookPlanFeatureActive,
+            //     currentBookPlanInvoice,
+            //     sails.config.BOOK_PLAN_MIN_TIME_LIMIT_TO_CHECK,
+            //     nextPlanExist
+            // );
             let isBookingPassRideFlow = await RideBookingService.checkIsBookingPassRideFlow(
                 bookingPassFeature,
                 currentBookPlanInvoice,
@@ -307,7 +302,10 @@ module.exports = {
                     vehicle.id
                 );
             }
+            console.log("85 vehicle.currentLocation.coordinate", vehicle.currentLocation.coordinate)
             await RideBookingService.checkLocationIsInsideNoRideArea(vehicle.currentLocation.coordinates);
+
+            console.log("IS_NEST_TO_NEST_RIDE_ENABLED", sails.config.IS_NEST_TO_NEST_RIDE_ENABLED)
             if (sails.config.IS_NEST_TO_NEST_RIDE_ENABLED) {
                 await RideBookingService.isVehicleWithinNest(
                     vehicle.nestId,
@@ -315,6 +313,7 @@ module.exports = {
                     'start'
                 );
             }
+
             let zone = await RideBookingService.findZoneForVehicle(vehicle, loggedInUser);
             let currentRide = await RideBookingService.checkForActiveRide(loggedInUser.id);
             let isReservedRide = false;
@@ -328,27 +327,31 @@ module.exports = {
                     throw sails.config.message.RESERVED_OTHER_VEHICLE;
                 }
             }
+
             let vehicleError;
             let isErrorOccuredInReservedRide = false;
             try {
                 await RideBookingService.checkVehicleAvailability(vehicle, isReservedRide);
             } catch (e) {
-                console.log('e', e);
+                console.log('vehicleError', e);
                 vehicleError = e;
                 isErrorOccuredInReservedRide = true;
                 if (!isReservedRide) {
                     throw vehicleError;
                 }
             }
+
             if (!vehicle.maxSpeedLimit ||
                 !vehicle.maxSpeedLimit.actualValue ||
                 !vehicle.maxSpeedLimit.requestedValue ||
                 vehicle.maxSpeedLimit.actualValue != vehicle.lastSpeedLimit ||
                 vehicle.maxSpeedLimit.requestedValue != vehicle.lastSpeedLimit) {
+                console.log('setMaxSpeed init')
                 let vehicleForIOT = await RideBookingService.getVehicleForIOT(vehicle.id);
                 if (!vehicleForIOT.lastSpeedLimit) {
                     vehicleForIOT.lastSpeedLimit = sails.config.DEFAULT_VEHICLE_SPEED_LIMIT;
                 }
+                console.log('vehicleForIOT:', vehicleForIOT)
                 await IotService.commandToPerform('setMaxSpeed', vehicleForIOT, { value: vehicleForIOT.lastSpeedLimit });
             }
 
@@ -366,6 +369,7 @@ module.exports = {
                 planInvoiceId: currentBookPlanInvoice ? currentBookPlanInvoice.id : null,
                 remainingTimeLimit: currentBookPlanInvoice ? currentBookPlanInvoice.remainingTimeLimit : 0
             };
+            console.log('statusTrack:', statusTrack)
             if (isReservedRide) {
                 currentRide.statusTrack.push(statusTrack);
                 let updateObj = {
@@ -394,8 +398,9 @@ module.exports = {
                     }
                     commonValidator.checkRequiredParams(field, params);
                 }
-                // get zone fore fare info               
+                // get zone fore fare info
                 const zoneId = zone._id.toString();
+                console.log('zoneId:', zoneId)
                 let fareData = await RideBookingService.getFareDataForRide(zoneId, vehicle.type);
                 let dataObj = {
                     userId: loggedInUser.id,
@@ -410,11 +415,14 @@ module.exports = {
                     addedBy: loggedInUser.id,
                     isPrivateRide: isPrivateRide
                 };
+
+                console.log('addRideIntoRideArray', loggedInUser.id)
                 await RideBookingService.addRideIntoRideArray(vehicle, loggedInUser.id);
 
                 if (sails.config.IS_FRANCHISEE_ENABLED && vehicle.franchiseeId) {
                     dataObj.franchiseeId = vehicle.franchiseeId;
                 }
+                console.log('vehicle.dealerId', vehicle.dealerId)
                 if (vehicle.dealerId) {
                     dataObj.dealerId = vehicle.dealerId;
                 }
@@ -423,6 +431,8 @@ module.exports = {
                     dataObj.rideType = isSubscriptionRideFlow ? sails.config.RIDE_TYPE.SUBSCRIPTION : sails.config.RIDE_TYPE.BOOKING_PASS;
                     dataObj.planInvoiceId = currentBookPlanInvoice.id;
                 }
+                console.log('dataObj.rideType', dataObj.rideType)
+                console.log('dataObj.planInvoiceId', dataObj.planInvoiceId)
                 if (sails.config.IS_NEST_TO_NEST_RIDE_ENABLED) {
                     dataObj.tripType = params.tripType;
                     dataObj.startNest = vehicle.nestId;
@@ -437,6 +447,7 @@ module.exports = {
                     isRideCompleted: false,
                     updatedBy: loggedInUser.id
                 });
+                console.log('Vehicle', vehicle.id, 'updated');
                 ride = await RideBooking.create(dataObj).fetch();
                 await RideBookingService.removeRidefromRideArray(vehicle.id);
             }

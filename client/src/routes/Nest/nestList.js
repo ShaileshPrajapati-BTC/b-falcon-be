@@ -116,7 +116,7 @@ class NestList extends Component {
                                                                         />
                                                                         <span className="gx-chat-date">
                                                                             <ActionButtons
-                                                                                pageId={PAGE_PERMISSION.NEST}
+                                                                                pageId={PAGE_PERMISSION.ZONES}
                                                                                 edit={() => { return this.props.editNest(option); }}
                                                                                 deleteObj={{
                                                                                     documentId: option.id,

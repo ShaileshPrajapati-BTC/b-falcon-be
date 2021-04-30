@@ -134,7 +134,7 @@ module.exports = {
         const user = await User.findOne({ id: userId }).select(['currentBookingPassIds']);
         let currentBookingPassIds = user.currentBookingPassIds;
 
-        if (!currentBookingPassIds) {
+        if (!currentBookingPassIds || !currentBookingPassIds.length) {
             console.log("------------------ currentBookingPassIds null");
             return null;
         }

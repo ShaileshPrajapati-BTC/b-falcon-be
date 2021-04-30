@@ -252,11 +252,16 @@ module.exports = {
             const bookPlanFeatureActive = sails.config.RIDE_SUBSCRIPTION_FEATURE_ACTIVE;
             const bookingPassFeature = sails.config.IS_BOOKING_PASS_FEATURE_ACTIVE;
 
-            let currentBookPlanInvoice = await BookingPassService.getUserCurrentPass(loggedInUser.id, vehicle)
+            let currentBookPlanInvoice = null;
+            if(bookingPassFeature) {
+                currentBookPlanInvoice = await BookingPassService.getUserCurrentPass(loggedInUser.id, vehicle)
+            } else {
+                currentBookPlanInvoice = await BookPlanService.getUserPlanInvoice(loggedInUser.currentBookingPlanInvoiceId)
+            }
 
             console.log("currentBookPlanInvoice-----------", currentBookPlanInvoice)
 
-            if(!currentBookPlanInvoice || !(currentBookPlanInvoice && currentBookPlanInvoice.length)){
+            if(!currentBookPlanInvoice){
                 throw sails.config.message.ACTIVE_PLAN_ERROR
             }
             let nextPlanExist = loggedInUser.nextBookingPlanInvoiceId !== null;

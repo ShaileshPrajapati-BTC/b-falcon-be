@@ -1,7 +1,70 @@
 const UtilService = require('./util');
+const PaymentService = require(`./payment`);
+const UserService = require(`./user`);
 const moment = require('moment');
 
 module.exports = {
+    addBalanceForPass: async (planInvoice, loggedInUser) => {
+        console.log(`[addBalanceForPass] planInvoice: ${planInvoice.id}`)
+        console.log(`[addBalanceForPass] loggedInUser: ${loggedInUser.id}`)
+
+        let chargeObj = await PaymentService.addBalanceInUserWallet(
+            loggedInUser.id,
+            planInvoice.planPrice,
+            false,
+            planInvoice.id
+        );
+
+        const latestUserObj = await UserService.getLatestUserObj(loggedInUser.id);
+        let response = {
+            paymentData: chargeObj.data,
+            walletAmount: latestUserObj.walletAmount,
+            isGuestUser: latestUserObj.isGuestUser
+        };
+
+        const resMsg = JSON.parse(JSON.stringify(sails.config.message.BUY_PLAN_REQUEST_CHARGE_SUCCESS));
+
+        return {response, resMsg};
+    },
+    async finalisePurchasePass (transactionId) {
+        try {
+            console.log(`Finalising purchase of pass: ${transactionId}`)
+            let transaction = await TransactionLog.findOne({
+                noqoodyReferenceId: transactionId
+            });
+
+            const planInvoice = await PlanInvoice.findOne({
+                id: transaction.planInvoiceId
+            })
+
+            console.log(`planInvoice: ${planInvoice.id}`)
+            console.log(`plan: ${planInvoice.planId}`)
+            console.log(`price: ${planInvoice.planPrice}`)
+
+            let chargeObj = await PaymentService.chargeCustomerForPlanUsingWallet(
+                planInvoice.id,
+                planInvoice.planPrice,
+                planInvoice.userId
+            );
+
+            if (chargeObj.flag) {
+                const user = await User.findOne({ id: planInvoice.userId });
+                let currentBookingPass = user.currentBookingPassIds ? user.currentBookingPassIds : []
+                currentBookingPass.push(planInvoice.id)
+                await User.update(
+                    { id: planInvoice.userId },
+                    { currentBookingPassIds: currentBookingPass }
+                );
+                console.log(`Charge for plan succeeded for transaction: ${transactionId}`)
+            } else {
+                console.log(`Charge for plan failed for transaction: ${transactionId}`)
+            }
+
+        } catch (err) {
+            console.log(err);
+        }
+    },
+
     checkAvailblePassForVehicleType(plan, vehicleType) {
         let isAvailable = false;
         plan.vehicleTypes.forEach(element => {
@@ -71,7 +134,7 @@ module.exports = {
         const user = await User.findOne({ id: userId }).select(['currentBookingPassIds']);
         let currentBookingPassIds = user.currentBookingPassIds;
 
-        if (!currentBookingPassIds) {
+        if (!currentBookingPassIds || !currentBookingPassIds.length) {
             console.log("------------------ currentBookingPassIds null");
             return null;
         }
@@ -188,7 +251,7 @@ module.exports = {
                     id: planInvoice.userId
                 },
                 {
-                    currentBookingPassIds: currentBookingPassIds,
+                    currentBookingPassIds: currentBookingPassIds
                 }
             ).fetch();
             if (!updatedUser.length < 0) {

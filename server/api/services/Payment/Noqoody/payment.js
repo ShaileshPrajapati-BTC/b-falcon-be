@@ -3,7 +3,8 @@ const moment = require("moment");
 const request = require('request');
 const ProjectSetupConfigService = require('../../projectSetupConfig');
 const UtilService = require('../../util');
-const UserService  =  require("../../user");
+const UserService = require(process.cwd()+'/api/services/user');
+const payment = require(process.cwd()+'/api/services/payment');
 
 module.exports = {
     //Get noqoody payment token.
@@ -31,7 +32,8 @@ module.exports = {
             vehicleType: ride.vehicleType,
             rideNumber: ride.rideNumber,
             isRideDepositTransaction: ride.deductMinFare,
-            rideType: ride.rideType
+            rideType: ride.rideType,
+            planInvoiceId: ride.planInvoiceId
         };
         try {
 
@@ -48,7 +50,7 @@ module.exports = {
                 datetime: moment().toISOString()
             }];
             data.statusTrack = statusTrack;
-            // return response; 
+            // return response;
         } catch (e) {
             console.log('Payment error ******************', e);
             data.transactionSuccess = false;
@@ -252,9 +254,13 @@ module.exports = {
                 { walletAmount: newAmount }
             ).fetch();
 
-             // update wallet expiry date
-            await UserService.updateWalletExpriedTime(sails.config.WALLET_EXPIRED_TIME,user.id);
-            await payment.addBonusForWalletTransaction(transaction);
+            try {
+                // update wallet expiry date
+                // await UserService.updateWalletExpriedTime(sails.config.WALLET_EXPIRED_TIME,user.id);
+                // await payment.addBonusForWalletTransaction(transaction);
+            } catch (e) {
+                console.error(e)
+            }
 
             if (updateUserWallet || updateUserWallet.length > 0) {
                 return true;

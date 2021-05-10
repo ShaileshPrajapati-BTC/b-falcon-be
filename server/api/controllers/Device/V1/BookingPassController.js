@@ -108,7 +108,7 @@ module.exports = {
 
             let isTimeClose = await operationalHours.checkIsOperationalHoursCLose();
             if(isTimeClose.isTimeClose){
-                throw sails.config.message.BOOKING_PASS_OPERATIONAL_HOURS_CLOSE;   
+                throw sails.config.message.BOOKING_PASS_OPERATIONAL_HOURS_CLOSE;
             }
 
             const plan = await BookingPass.findOne({
@@ -175,7 +175,6 @@ module.exports = {
                 planPriceDetails.price,
                 userId
             );
-
             if (chargeObj.flag) {
                 const user = await User.findOne({ id: userId });
                 let currentBookingPass = user.currentBookingPassIds ? user.currentBookingPassIds : []
@@ -221,4 +220,86 @@ module.exports = {
             res.serverError({}, error);
         }
     },
+    async purchasePassWithPayment(req, res) {
+        try {
+            const fields = ["planId"];
+            let params = req.allParams();
+            if (!params.vehicleType) {
+                return res.badRequest(null, sails.config.message.BAD_REQUEST);
+            }
+            const vehicleType = params.vehicleType;
+            delete params.vehicleType;
+            commonValidator.checkRequiredParams(fields, params);
+            const loggedInUser = req.user;
+            const userId = loggedInUser.id;
+
+            let isTimeClose = await operationalHours.checkIsOperationalHoursCLose();
+            if(isTimeClose.isTimeClose){
+                throw sails.config.message.BOOKING_PASS_OPERATIONAL_HOURS_CLOSE;
+            }
+
+            const plan = await BookingPass.findOne({
+                id: params.planId,
+            });
+            if (!plan || !plan.id) {
+                throw sails.config.message.BOOKING_PASS_NOT_FOUND;
+            }
+
+            BookingPassService.checkAvailblePassForVehicleType(plan, vehicleType)
+            const activeRide = await RideBookingService.getActiveRide(userId);
+            if (activeRide) {
+                throw sails.config.message.CANT_BUY_PLAN;
+            }
+            if (!plan.isActive) {
+                throw sails.config.message.PLAN_NOT_ACTIVE;
+            }
+
+            await BookingPassService.checkUsedPassForVehicleType(userId, vehicleType)
+
+            const planPriceDetails = await BookingPassService.getPlanPriceDetails(plan, vehicleType)
+
+
+            let planTotalTimeLimit = BookingPassService.countTimeLimitInSeconds(
+                plan.limitValue,
+                plan.limitType
+            );
+
+            const expirationStartDateTime = UtilService.getTimeFromNow();
+            const expirationEndDateTime = await BookingPassService.addTime(
+                plan.expirationType,
+                plan.expirationValue
+            );
+
+            const createParams = {
+                userId: userId,
+                planId: plan.id,
+                passId: plan.id,
+                totalTimeLimit: planTotalTimeLimit,
+                remainingTimeLimit: planTotalTimeLimit,
+                planData: plan,
+                planPrice: planPriceDetails.price,
+                planName: plan.name,
+                vehicleType: vehicleType,
+                isTrialPlan: false,
+                isRenewable: false,
+                limitType: plan.expirationType,
+                limitValue: plan.expirationValue,
+                expirationStartDateTime: expirationStartDateTime,
+                expirationEndDateTime: expirationEndDateTime
+            };
+
+            console.log('createParams: ', createParams)
+            let planInvoice = await PlanInvoice.create(createParams).fetch();
+            console.log('planInvoice: ', planInvoice.id)
+            if (!planInvoice || !planInvoice.id) {
+                throw sails.config.message.BUY_PLAN_FAILED;
+            }
+
+            const {response, resMsg} = await BookingPassService.addBalanceForPass(planInvoice, loggedInUser)
+            return res.ok(response, resMsg);
+        } catch (error) {
+            console.log(error);
+            res.serverError({}, error);
+        }
+    }
 };

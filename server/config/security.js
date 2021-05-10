@@ -30,7 +30,16 @@ module.exports.security = {
 
   cors: {
     allRoutes: true,
-    allowOrigins: ['http://localhost:3000']
+    allowCredentials: false,
+    allowRequestMethods: 'GET,POST,PUT,DELETE,OPTIONS,HEAD',
+    allowRequestHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Language, Accept-Language, Allow, access-token',
+    allowOrigins: [
+        'http://localhost:3000',
+        'http://b-falcon-staging-lb-1340126293.me-south-1.elb.amazonaws.com',
+        'http://test-b-falcon.s3-website.me-south-1.amazonaws.com',
+        'http://b.falconride.io',
+        'https://b.falconride.io'
+    ]
 },
 
 

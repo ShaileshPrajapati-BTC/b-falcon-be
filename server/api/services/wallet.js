@@ -3,7 +3,7 @@ const UtilService = require(`./util`);
 module.exports = {
     async getWalletConfig() {
         let walletConfig = {
-            isWalletEnable: sails.config.IS_WALLET_ENABLE,
+            isWalletEnable: false,
             minWalletCreditAmount: sails.config.MIN_WALLET_CREDIT_AMOUNT,
             maxWalletCreditAmount: sails.config.MAX_WALLET_CREDIT_AMOUNT,
             minWalletNotificationAmount:

@@ -584,7 +584,7 @@ class Nest extends Component {
                                         {listView && <AddButton
                                             onClick={this.upsertNestForm}
                                             text="Add"
-                                            pageId={PAGE_PERMISSION.NEST}
+                                            pageId={PAGE_PERMISSION.ZONES}
                                         />}
                                         {addform && <div className="topbarCommonBtn">
                                             <Button className="gx-mb-0" onClick={this.viewNestList}>List</Button>

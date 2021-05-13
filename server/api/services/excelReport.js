@@ -1093,7 +1093,7 @@ module.exports = {
 
             if (isEmailSend) {
                 await EmailService.send({
-                    subject: `Falcon Report ${currentDate}`,
+                    subject: `B Falcon Report ${currentDate}`,
                     to: setting.emailsForExportExcel,
                     attachments: [`excel/${filename}`],
                     template: 'dailyReport',

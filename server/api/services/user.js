@@ -13,6 +13,7 @@ const ObjectId = require('mongodb').ObjectID;
 const PaymentService = require('./payment');
 const NestService = require('./nest');
 const request = require('request');
+const RideBookingService=require('./rideBooking');
 
 module.exports = {
     async update(params) {
@@ -1204,6 +1205,9 @@ module.exports = {
                 .populate("franchiseeId")
                 .populate("dealerId");
                 //.populate('isActiveBookingPass');
+            let Obj=await RideBookingService.checkIsFirstFreeRide(user);
+            user.isFirstFreeRide=Obj.isFirstFreeRide;
+            user.promoCode=Obj.promoCodeText;
             user.isActiveBookingPlan = false;
             console.log('currentBookingPassIds:', user.currentBookingPassIds);
             if (user.currentBookingPassIds) {
@@ -1232,8 +1236,8 @@ module.exports = {
                 type: sails.config.SETTINGS.TYPE.APP_SETTING,
                 updatedAt: { ">=": lastSyncDate },
             });
-            let franchiseeId = user.franchiseeId ? user.franchiseeId.id : null;
-            let dealerId = user.dealerId ? user.dealerId.id : null;
+             let franchiseeId = user.franchiseeId ? user.franchiseeId.id : null;
+             let dealerId = user.dealerId ? user.dealerId.id : null;
             let parentId = null;
 
             if (franchiseeId) {

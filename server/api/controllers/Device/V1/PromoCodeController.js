@@ -93,6 +93,11 @@ module.exports = {
             } = promoCodeRecord;
             const isFirstRide =
                 type === sails.config.PROMO_CODE_TYPE.FIRST_RIDE;
+
+            if(isFirstRide){
+                throw sails.config.message.PROMO_CODE_NOT_APPLIED_BEFORE;
+            }   
+             
             if (isFirstRide) {
                 const firstRideCountFilter = {
                     userId: loggedInUser.id,

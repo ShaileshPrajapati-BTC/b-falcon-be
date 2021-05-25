@@ -3282,15 +3282,15 @@ module.exports = {
         return moment().isBefore(ride.reservedEndDateTime);
     },
     async isVehicleWithinNest(nestId, currentLocation, tag) {
-        let matchedNest = await this.findNest(currentLocation, nestId);
+         let matchedNest = await this.findNest(currentLocation, nestId);
 
-        if (!matchedNest || !matchedNest[0]) {
-            if (tag === 'start') {
-                throw sails.config.message.CANT_START_RIDE_AT_THIS_LOCATION;
-            } else {
-                throw sails.config.message.CANT_STOP_RIDE_OUTSIDE_END_NEST;
-            }
-        }
+         if (!matchedNest || !matchedNest[0]) {
+             if (tag === 'start') {
+                 throw sails.config.message.CANT_START_RIDE_AT_THIS_LOCATION;
+             } else {
+                 throw sails.config.message.CANT_STOP_RIDE_OUTSIDE_END_NEST;
+             }
+         }
 
         return true;
     },
@@ -4462,6 +4462,11 @@ module.exports = {
         if (!fareData.timeFare || fareData.timeFare <= 0) {
             return false;
         }
+        if(ride.isPromoCodeApplied){
+            let promoCodeRecord=await PromoCode.findOne({id:ride.promoCodeId});
+            console.log(promoCodeRecord.availableMinutes,'promocodeRecord.availableminutes');
+            return promoCodeRecord.availableMinutes
+        }
         console.log('fareData.perXBaseMinute', fareData.perXBaseMinute);
         let perXBaseMinute = fareData.perXBaseMinute ? fareData.perXBaseMinute : 1;
         console.log('perXBaseMinute', perXBaseMinute);
@@ -4740,5 +4745,126 @@ module.exports = {
         // await UserService.sendMobileVerificationLink(user);
     },
     afterUpdate: async function () {
+    },
+    applyPromoCode: async function (user,PromoCodeInput,ride)  {
+        try {
+            const loggedInUser = user;
+            const promoCode = PromoCodeInput.toString().toUpperCase();
+            let franchiseeId = loggedInUser.franchiseeId ? loggedInUser.franchiseeId : null;
+            let dealerId = loggedInUser.dealerId ? loggedInUser.dealerId : null;
+
+            let promoCodeAddedBy = null;
+
+            if (franchiseeId) {
+                promoCodeAddedBy = franchiseeId;
+            } else if (dealerId) {
+                promoCodeAddedBy = dealerId;
+            }
+
+            let promoCodeRecord = await PromoCode.findOne({
+                code: promoCode,
+              //  addedBy: promoCodeAddedBy
+            });
+
+            if (!promoCodeRecord || !promoCodeRecord.id) {
+                throw sails.config.message.PROMO_CODE_NOT_FOUND;
+            }
+           
+            let hasAccess = promoCodeRecord.isApplicableToAllUsers ||
+                promoCodeRecord.applicableUsers.includes(loggedInUser.id);
+            if (!hasAccess) {
+                throw sails.config.message.PROMO_CODE_NOT_FOUND;
+            }
+            let currentTime = UtilService.getTimeFromNow();
+            if (
+                !promoCodeRecord.isActive ||
+                promoCodeRecord.endDateTime <= currentTime
+            ) {
+                throw sails.config.message.PROMO_CODE_EXPIRED;
+            }
+           
+            if (!promoCodeRecord.vehicleType.includes(ride.vehicleType)) {
+                if (ride.vehicleType === sails.config.VEHICLE_TYPE.BICYCLE) {
+                    throw sails.config.message.PROMO_CODE_NOT_FOR_BICYCLE;
+                } else if (ride.vehicleType === sails.config.VEHICLE_TYPE.SCOOTER) {
+                    throw sails.config.message.PROMO_CODE_NOT_FOR_SCOOTER;
+                } else if (ride.vehicleType === sails.config.VEHICLE_TYPE.BIKE) {
+                    throw sails.config.message.PROMO_CODE_NOT_FOR_BIKE;
+                }
+            }
+            const {
+                id,
+                type,
+                code
+            } = promoCodeRecord;
+            const isFirstRide =
+                type === sails.config.PROMO_CODE_TYPE.FIRST_RIDE;
+            if (isFirstRide) {
+                const firstRideCountFilter = {
+                    userId: loggedInUser.id,
+                    status: sails.config.RIDE_STATUS.COMPLETED,
+                    promoCodeText:promoCodeRecord.code,
+                    isPromoCodeApplied: true
+                };
+                const firstRideCount = await RideBooking.count(firstRideCountFilter);
+                if (firstRideCount > 0) {
+                    throw sails.config.message.PROMO_CODE_ONLY_FOR_FIRST_RIDE;
+                }
+            }
+            let updateObj = {
+                promoCodeId: id,
+                promoCodeText: code,
+                isPromoCodeApplied: true
+            };
+            await RideBooking.update({ id: ride.id }, updateObj);
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    },
+    checkIsFirstFreeRide:   async function (user){
+        const loggedInUser = user;
+        let Obj={};
+        let franchiseeId = loggedInUser.franchiseeId ? loggedInUser.franchiseeId : null;
+        let dealerId = loggedInUser.dealerId ? loggedInUser.dealerId : null;
+        let promoCodeAddedBy = null;
+        if (franchiseeId) {
+            promoCodeAddedBy = franchiseeId;
+        } else if (dealerId) {
+            promoCodeAddedBy = dealerId;
+        }
+        let filter = {
+            or: [
+                { isApplicableToAllUsers: true },
+                { applicableUsers: loggedInUser.id }
+            ],
+            isActive: true,
+            type:1,
+          //  addedBy: promoCodeAddedBy,
+            endDateTime: {
+                '>=': UtilService.getStartOfTheDay()
+            }
+        };
+        Obj.isFirstFreeRide=false;
+        Obj.promoCodeText=null;
+
+        let promoCodeRecord = await PromoCode.findOne(filter);
+        if (promoCodeRecord) {
+            const firstRideCountFilter = {
+                userId: loggedInUser.id,
+                status: sails.config.RIDE_STATUS.COMPLETED,
+                promoCodeText: promoCodeRecord.code,
+                isPromoCodeApplied: true
+            };
+            const firstRideCount = await RideBooking.count(firstRideCountFilter);
+            if(firstRideCount==0)
+            {
+                Obj.isFirstFreeRide=true;
+                Obj.promoCodeText=promoCodeRecord.code;
+            }
+        }
+        console.log(Obj,'obj');
+        return Obj;
     }
 };

@@ -261,7 +261,7 @@ module.exports = {
 
             console.log("currentBookPlanInvoice-----------", currentBookPlanInvoice)
             
-            let Obj=RideBookingService.isFirstFreeRide(loggedInUser);
+            let Obj=await RideBookingService.isFirstFreeRide(loggedInUser);
             if(!currentBookPlanInvoice && !Obj.isFirstFreeRide){
                throw sails.config.message.ACTIVE_PLAN_ERROR
             }

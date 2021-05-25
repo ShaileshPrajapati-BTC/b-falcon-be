@@ -132,6 +132,7 @@ module.exports = {
     },
     async getUserCurrentPass(userId, vehicle) {
         const user = await User.findOne({ id: userId }).select(['currentBookingPassIds']);
+        let currentTime = moment().toISOString();
         let currentBookingPassIds = user.currentBookingPassIds;
 
         if (!currentBookingPassIds || !currentBookingPassIds.length) {
@@ -140,7 +141,12 @@ module.exports = {
         }
         let currentPass;
         for (let planInvoiceId of currentBookingPassIds) {
-            const planInvoice = await PlanInvoice.findOne({ id: planInvoiceId });
+            const planInvoice = await PlanInvoice.findOne({ id: planInvoiceId ,
+                isCancelled:false,
+                remainingTimeLimit: { "!=": 0 },
+                expirationStartDateTime: { '<=': currentTime },
+                expirationEndDateTime: { '>=': currentTime }
+            });
             if (planInvoice.vehicleType === vehicle.type) {
                 currentPass = planInvoice;
             }

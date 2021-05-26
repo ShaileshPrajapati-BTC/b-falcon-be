@@ -459,7 +459,7 @@ module.exports = {
                 console.log('Vehicle', vehicle.id, 'updated');
                 ride = await RideBooking.create(dataObj).fetch();
                 if(params.promoCode!=undefined && params.promoCode!=null && params.promoCode)
-                await RideBookingService.applyPromoCode(req.user,'FALCONFREE',ride);                
+                await RideBookingService.applyPromoCode(req.user,params.promoCode,ride);                
                 await RideBookingService.removeRidefromRideArray(vehicle.id);
             }
             if (sails.config.DEDUCT_ON_START_RIDE && !isSubscriptionRideFlow && !isErrorOccuredInReservedRide) {

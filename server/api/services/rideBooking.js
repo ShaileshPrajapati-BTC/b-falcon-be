@@ -1972,7 +1972,7 @@ module.exports = {
             isPaused = true;
         }
         let fareSummary = await this.calculateFareForRide(ride, data);
-        // console.log('fareSummary========== :>> ', fareSummary);
+        console.log('fareSummary========== :>> ', fareSummary);
         let promoCodeObj;
         if (ride.isPromoCodeApplied && !ride.promoCodeAmount) {
             promoCodeObj = await PromoCodeService.addPromoCodeAmount(fareSummary, ride.promoCodeId);

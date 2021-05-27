@@ -2005,7 +2005,7 @@ module.exports = {
             stopOverTrack: stopOverTrack,
             totalKm: fareSummary.travelDistance,
             totalTime: fareSummary.travelTime,
-            totalFare: fareSummary.total,
+            totalFare: 0, // fareSummary.total,
             fareSummary: fareSummary,
             isPaused: false,
             pauseEndDateTime: '',
@@ -2931,8 +2931,8 @@ module.exports = {
             fareData,
             extraTimeOverWorkingHour,
             ride.rideType);
-        fareSummary.rideDiscountAmount = discountFareOfUsedPassTime.discountAmount;
-        const finalFareWithDiscount = discountFareOfUsedPassTime.finalDiscountFare + totalFareOfExtraTime;
+        fareSummary.rideDiscountAmount = discountFareOfUsedPassTime && discountFareOfUsedPassTime.discountAmount;
+        const finalFareWithDiscount = discountFareOfUsedPassTime && discountFareOfUsedPassTime.finalDiscountFare + totalFareOfExtraTime;
 
         const finalSummary = {
             fareSummary: fareSummary,

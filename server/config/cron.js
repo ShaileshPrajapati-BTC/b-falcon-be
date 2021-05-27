@@ -216,7 +216,7 @@ module.exports.cron = {
     // },
 
     removeHourlyBookingPass: {
-        schedule: '*/15 * * * *',
+        schedule: '*/1 * * * *',
         onTick: function () {
             // every min: '*/1 * * * *'
             // every half hour: '*/30 * * * *'
@@ -229,7 +229,7 @@ module.exports.cron = {
         }
     },
     removeDailyMonthlyBookingPass: {
-        schedule: '0 0 * * *',
+        schedule: '*/30 * * * *',
         onTick: function () {
             if (!sails.config.IS_BOOKING_PASS_FEATURE_ACTIVE) {
                 return;

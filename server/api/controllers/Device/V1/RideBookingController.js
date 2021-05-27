@@ -273,12 +273,15 @@ module.exports = {
             //     sails.config.BOOK_PLAN_MIN_TIME_LIMIT_TO_CHECK,
             //     nextPlanExist
             // );
-            let isBookingPassRideFlow = await RideBookingService.checkIsBookingPassRideFlow(
-                bookingPassFeature,
-                currentBookPlanInvoice,
-                sails.config.BOOK_PLAN_MIN_TIME_LIMIT_TO_CHECK,
-                loggedInUser.id
-            );
+            // let isBookingPassRideFlow = await RideBookingService.checkIsBookingPassRideFlow(
+            //     bookingPassFeature,
+            //     currentBookPlanInvoice,
+            //     sails.config.BOOK_PLAN_MIN_TIME_LIMIT_TO_CHECK,
+            //     loggedInUser.id
+            // );
+
+            let isBookingPassRideFlow=true;
+            
             let isPrivateRide;
             try {
                 isPrivateRide = await RideBookingService.checkIsPrivateRide(vehicle, loggedInUser) || false;

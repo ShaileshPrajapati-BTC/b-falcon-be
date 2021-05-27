@@ -2798,7 +2798,7 @@ module.exports = {
         let unlockDiscount = false;
         let finalFareWithDiscount = 0;
         let currentPlanInvoice = await BookingPassService.getUserPlanInvoice(ride.planInvoiceId);
-        let passDiscountDetail = await BookingPassService.getPlanPriceDetails(currentPlanInvoice.planData, currentPlanInvoice.vehicleType)
+        let passDiscountDetail = await BookingPassService.getPlanPriceDetails(currentPlanInvoice && currentPlanInvoice.planData, currentPlanInvoice && currentPlanInvoice.vehicleType)
         if (currentPlanInvoice &&
             currentPlanInvoice.planData &&
             currentPlanInvoice.planData.passType
@@ -2810,7 +2810,7 @@ module.exports = {
                 unlockDiscount = true;
             }
         }
-        console.log('currentPlanInvoice.remainingTimeLimit :>> ', currentPlanInvoice.remainingTimeLimit);
+        console.log('currentPlanInvoice.remainingTimeLimit :>> ', currentPlanInvoice && currentPlanInvoice.remainingTimeLimit);
         console.log('fareSummary.travelTime :>> ', fareSummary.travelTime);
         if (rideDiscount) {
             //check ride is in working hours or not
@@ -4283,6 +4283,7 @@ module.exports = {
             imei: vehicle.imei,
             userId: userId
         }
+        console.log("ridesArr", ridesArr)
         if (ridesArr.length > 0) {
             let alreadyBook = ridesArr.find((el) => { return el.vehicleId === vehicle.id })
             if (alreadyBook) {

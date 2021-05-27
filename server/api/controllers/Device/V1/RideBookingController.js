@@ -441,7 +441,7 @@ module.exports = {
                 if (isSubscriptionRideFlow || isBookingPassRideFlow) {
                     dataObj.planInvoiceTrack = [planInvoiceTrack];
                     dataObj.rideType = isSubscriptionRideFlow ? sails.config.RIDE_TYPE.SUBSCRIPTION : sails.config.RIDE_TYPE.BOOKING_PASS;
-                    dataObj.planInvoiceId = currentBookPlanInvoice.id;
+                    dataObj.planInvoiceId = currentBookPlanInvoice && currentBookPlanInvoice.id;
                 }
                 console.log('dataObj.rideType', dataObj.rideType)
                 console.log('dataObj.planInvoiceId', dataObj.planInvoiceId)

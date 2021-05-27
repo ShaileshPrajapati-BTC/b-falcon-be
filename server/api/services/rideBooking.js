@@ -4463,11 +4463,11 @@ module.exports = {
         if (!fareData.timeFare || fareData.timeFare <= 0) {
             return false;
         }
-        if(ride.isPromoCodeApplied){
-            let promoCodeRecord=await PromoCode.findOne({id:ride.promoCodeId});
-            console.log(promoCodeRecord.availableMinutes,'promocodeRecord.availableminutes');
-            return promoCodeRecord.availableMinutes
-        }
+        // if(ride.isPromoCodeApplied){
+        //     let promoCodeRecord=await PromoCode.findOne({id:ride.promoCodeId});
+        //     console.log(promoCodeRecord.availableMinutes,'promocodeRecord.availableminutes');
+        //     return promoCodeRecord.availableMinutes
+        // }
         console.log('fareData.perXBaseMinute', fareData.perXBaseMinute);
         let perXBaseMinute = fareData.perXBaseMinute ? fareData.perXBaseMinute : 1;
         console.log('perXBaseMinute', perXBaseMinute);
@@ -4796,7 +4796,8 @@ module.exports = {
             const {
                 id,
                 type,
-                code
+                code,
+                availableMinutes
             } = promoCodeRecord;
             const isFirstRide =
                 type === sails.config.PROMO_CODE_TYPE.FIRST_RIDE;
@@ -4812,10 +4813,13 @@ module.exports = {
                     throw sails.config.message.PROMO_CODE_ONLY_FOR_FIRST_RIDE;
                 }
             }
+            const currentTime = UtilService.getTimeFromNow();
+            let nextMaxTime= UtilService.addTime(availableMinutes, currentTime);
             let updateObj = {
                 promoCodeId: id,
                 promoCodeText: code,
-                isPromoCodeApplied: true
+                isPromoCodeApplied: true,
+                maxRideTime:  nextMaxTime
             };
             await RideBooking.update({ id: ride.id }, updateObj);
             return true;

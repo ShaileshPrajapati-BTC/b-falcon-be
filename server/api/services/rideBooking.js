@@ -174,7 +174,7 @@ module.exports = {
                 updatedBy: ride.userId
             };
             let rideLimitData = {};
-            if (sails.config.IS_RIDE_END_AFTER_INSUFFICIENT_WALLET_BALANCE) {
+            if (sails.config.IS_RIDE_END_AFTER_INSUFFICIENT_WALLET_BALANCE && !ride.isPromoCodeApplied) {
                 try {
                     rideLimitData = await this.getRideLimitData(ride);
                 } catch (e) {

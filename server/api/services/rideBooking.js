@@ -4460,14 +4460,18 @@ module.exports = {
         let fareData = ride.fareData;
         let availableMinutes = fareData.timeFareFreeLimit;
 
+        if(ride.isPromoCodeApplied){
+            let promoCodeRecord=await PromoCode.findOne({id:ride.promoCodeId});
+            console.log(promoCodeRecord.availableMinutes,'promocodeRecord.availableminutes');
+            const currentTime = UtilService.getTimeFromNow();
+            let nextMaxTime= UtilService.addTime(promoCodeRecord.availableMinutes, currentTime);
+            return nextMaxTime
+        }
+        
         if (!fareData.timeFare || fareData.timeFare <= 0) {
             return false;
         }
-        // if(ride.isPromoCodeApplied){
-        //     let promoCodeRecord=await PromoCode.findOne({id:ride.promoCodeId});
-        //     console.log(promoCodeRecord.availableMinutes,'promocodeRecord.availableminutes');
-        //     return promoCodeRecord.availableMinutes
-        // }
+        
         console.log('fareData.perXBaseMinute', fareData.perXBaseMinute);
         let perXBaseMinute = fareData.perXBaseMinute ? fareData.perXBaseMinute : 1;
         console.log('perXBaseMinute', perXBaseMinute);
@@ -4815,6 +4819,10 @@ module.exports = {
             }
             // const currentTime = UtilService.getTimeFromNow();
             let nextMaxTime= UtilService.addTime(availableMinutes, currentTime);
+            console.log("nextMaxTime",nextMaxTime)
+            console.log("availableMinutes",availableMinutes)
+            console.log("currentTime",currentTime)
+
             let updateObj = {
                 promoCodeId: id,
                 promoCodeText: code,

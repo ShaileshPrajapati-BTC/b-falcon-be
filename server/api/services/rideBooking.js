@@ -4149,7 +4149,7 @@ module.exports = {
                     isActive: true
                 });
             }
-            if (referralSetting.invitedUserBenefitValue && referralSetting.invitedUserBenefitValue > 0) {
+            if (referralSetting && referralSetting.invitedUserBenefitValue && referralSetting.invitedUserBenefitValue > 0) {
                 let benefit = sails.config.REFERRAL.BENEFIT.FREE_AMOUNT;
                 let status = sails.config.REFERRAL.STATUS.USED;
                 let referralBenefitAmount = await ReferralBenefit.find({

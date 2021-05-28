@@ -4813,7 +4813,7 @@ module.exports = {
                     throw sails.config.message.PROMO_CODE_ONLY_FOR_FIRST_RIDE;
                 }
             }
-            const currentTime = UtilService.getTimeFromNow();
+            // const currentTime = UtilService.getTimeFromNow();
             let nextMaxTime= UtilService.addTime(availableMinutes, currentTime);
             let updateObj = {
                 promoCodeId: id,

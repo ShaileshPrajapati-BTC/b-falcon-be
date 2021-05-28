@@ -196,7 +196,7 @@ module.exports = {
                 }
             }
             console.log('updateObj.maxRideTime 112321 ', updateObj.maxRideTime);
-            if (sails.config.IS_BOOKING_PASS_FEATURE_ACTIVE) {
+            if (sails.config.IS_BOOKING_PASS_FEATURE_ACTIVE && !ride.isPromoCodeApplied) {
                 try {
                     let maxRideTimeLimit = await this.setBookingPassRideEndTime(ride, updateObj.maxRideTime);
                     if (maxRideTimeLimit !== false) {
@@ -4471,7 +4471,7 @@ module.exports = {
         if (!fareData.timeFare || fareData.timeFare <= 0) {
             return false;
         }
-        
+
         console.log('fareData.perXBaseMinute', fareData.perXBaseMinute);
         let perXBaseMinute = fareData.perXBaseMinute ? fareData.perXBaseMinute : 1;
         console.log('perXBaseMinute', perXBaseMinute);

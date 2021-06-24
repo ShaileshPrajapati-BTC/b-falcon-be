@@ -2,7 +2,7 @@ module.exports = {
   datastores: {
     default: {
       adapter: "sails-mongo",
-      url: 'mongodb://11.0.1.179:27017/B-Falcon',
+      url: 'mongodb://11.0.1.82:27017/B-Falcon',
       // sets the max retry times(seconds)
       reconnectTries: 600,
       // sets the delay between every retry (milliseconds)

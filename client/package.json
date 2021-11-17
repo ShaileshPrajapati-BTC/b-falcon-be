@@ -65,7 +65,9 @@
         "start": "react-app-rewired start",
         "production:build": "REACT_APP_BASE_URL=http://lb.b.falconride.io react-app-rewired build",
         "test": "react-app-rewired --env=jsdom",
-        "production-deploy": "aws s3 sync build/ s3://b.falconride.io --acl public-read"
+        "production-deploy": "aws s3 sync build/ s3://b.falconride.io --acl public-read",
+        "staging:build": "REACT_APP_BASE_URL=http://lb.staging.falconride.io react-app-rewired build",
+        "staging-deploy": "aws s3 sync build/ s3://staging.falconride.io --acl public-read"
     },
     "devDependencies": {},
     "proxy": "http://localhost:1381",

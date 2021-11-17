@@ -75,6 +75,9 @@ module.exports = {
             columnType: 'array',
             description: { fieldType: 'number' },
             defaultsTo: sails.config.DEFAULT_VEHICLE_TYPE_ARRAY
+        },
+        availableMinutes:{
+            type:'number',defaultsTo:0
         }
     }
 };

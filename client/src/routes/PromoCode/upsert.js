@@ -74,7 +74,7 @@ class PromoCodeUpsert extends Component {
                 });
                 let data = response.data;
                 let formVal = _.pick(data, [
-                    'name', 'code', 'description', 'link', 'notes', 'tnc', 'type'
+                    'name', 'code', 'description', 'link', 'notes', 'tnc', 'type','availableMinutes'
                 ]);
                 if (data.vehicleType.length > 1) {
                     formVal.vehicleType = 0;
@@ -176,7 +176,7 @@ class PromoCodeUpsert extends Component {
                 method = `put`;
             }
 
-            let obj = _.pick(values, ['vehicleType', 'name', 'description', 'link', 'notes', 'tnc', 'type']);
+            let obj = _.pick(values, ['vehicleType', 'name', 'description', 'link', 'notes', 'tnc', 'type','availableMinutes']);
             obj.code = _.toUpper(values.code);
             obj.startDateTime = UtilService.getStartOfTheDay(values.valid[0].toISOString());
             obj.endDateTime = UtilService.getEndOfTheDay(values.valid[1].toISOString());
@@ -198,6 +198,7 @@ class PromoCodeUpsert extends Component {
                 }
             } else {
                 obj.maxUseLimitPerUser = 1;
+                obj.availableMinutes = values.availableMinutes;
             }
 
             try {
@@ -500,6 +501,19 @@ class PromoCodeUpsert extends Component {
                                     </Form.Item>
                                 </Col>}
 
+                                {type === DISCOUNT_TYPE.FREE_FIRST_RIDE &&
+                                        <Col span={3}>
+                                            <Form.Item label="Available Minutes">
+                                                {getFieldDecorator('availableMinutes', {
+                                                    rules: [
+                                                        {
+                                                            required: true
+                                                        }
+                                                    ]
+                                                })(<InputNumber placeholder="Available Minutes" />)}
+                                            </Form.Item>
+                                        </Col>
+                                    }
 
                                 {discountType && < >
                                     <Col span={3} >

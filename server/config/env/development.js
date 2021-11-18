@@ -1,38 +1,40 @@
 module.exports = {
     datastores: {
         default: {
-            adapter: 'sails-mongo',
-            url: 'mongodb://127.0.0.1:27017/B-Falcon',
+            adapter: "sails-mongo",
+            url: "mongodb://127.0.0.1:27017/B-Falcon",
             // sets the max retry times(seconds)
             reconnectTries: 600,
             // sets the delay between every retry (milliseconds)
-            reconnectInterval: 2000
-        }
+            reconnectInterval: 2000,
+        },
     },
     models: {
-        migrate: 'safe'
+        migrate: "safe",
     },
     blueprints: {
-        shortcuts: false
+        shortcuts: false,
     },
     security: {
         cors: {
             allRoutes: true,
             allowOrigins: [
-                'http://localhost:3000',
-                'http://b.falconride.io',
-                'https://b.falconride.io',
-                'http://b.falconride.io.s3-website.me-south-1.amazonaws.com',
-                'http://lb.b.falconride.io'
-            ]
-        }
+                "http://localhost:3000",
+                "http://b.falconride.io",
+                "https://b.falconride.io",
+                "http://b.falconride.io.s3-website.me-south-1.amazonaws.com",
+                "http://lb.b.falconride.io",
+                "http://b-falcon.s3-website.us-east-2.amazonaws.com/",
+                "http://localhost:5000",
+            ],
+        },
     },
     session: {
         cookie: {
             // secure: true,
             // 24 hours
-            maxAge: 24 * 60 * 60 * 1000
-        }
+            maxAge: 24 * 60 * 60 * 1000,
+        },
     },
     sockets: {
         // onlyAllowOrigins: [
@@ -42,16 +44,16 @@ module.exports = {
     },
 
     log: {
-        level: 'debug'
+        level: "debug",
     },
     http: {
         // One year
-        cache: 365.25 * 24 * 60 * 60 * 1000
+        cache: 365.25 * 24 * 60 * 60 * 1000,
         // trustProxy: true,
     },
     port: 1381,
     // ssl: undefined,
     custom: {
-        internalEmailAddress: 'support@example.com'
-    }
+        internalEmailAddress: "support@example.com",
+    },
 };
